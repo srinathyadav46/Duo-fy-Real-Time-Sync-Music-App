@@ -60,7 +60,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
   // Force WebSocket transport to match client config
-  transports: ["websocket"],
+  transports: ["websocket","polling"],
   // Disconnect ghost clients faster
   pingTimeout:  20000,
   pingInterval: 10000,
