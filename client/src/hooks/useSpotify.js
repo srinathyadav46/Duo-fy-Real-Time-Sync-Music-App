@@ -20,7 +20,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 const SDK_SCRIPT_URL = "https://sdk.scdn.co/spotify-player.js";
 const PLAYER_NAME    = "Duo-fy";
 
-export function useSpotifyPlayer(accessToken) {
+export function useSpotify(accessToken) {
   const [deviceId,    setDeviceId]    = useState(null);
   const [playerReady, setPlayerReady] = useState(false);
   const [playerError, setPlayerError] = useState(null); // string | null
@@ -196,4 +196,9 @@ export async function spotifyGetQueue(accessToken) {
   });
   if (!res.ok) return { currently_playing: null, queue: [] };
   return res.json();
+}
+export function fmtMs(ms = 0) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
