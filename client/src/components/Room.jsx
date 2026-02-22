@@ -4,7 +4,7 @@ import { useSpotify, fmtMs } from "../hooks/useSpotify";
 import { useSpotifyPlayer, spotifyPlay, spotifyPause, spotifySkipNext, spotifySkipPrev } from "../hooks/useSpotifyPlayer";
 import SearchPanel  from "./SearchPanel";
 import QueuePanel   from "./QueuePanel";
-import DeviceBanner from "./Devicebanner";
+import DeviceBanner from "./DeviceBanner";
 import "./Room.css";
 
 const REACTIONS = ["❤️", "🔥", "🌙", "✨", "🎵"];
