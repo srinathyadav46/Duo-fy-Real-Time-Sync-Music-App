@@ -1,0 +1,438 @@
+/* ============================================================
+   DUO-FY — ANIMATIONS
+   Pure motion stylesheet · No variables · No layout · No color
+   ============================================================ */
+
+
+/* ============================================================
+   1. KEYFRAMES — ENTRANCE & EXIT
+   ============================================================ */
+
+/* Fade up — primary content reveal (opacity + rise) */
+@keyframes fade-up {
+  from {
+    opacity:   0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity:   1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in — pure opacity reveal, no movement */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Slide down — navbar / top-anchored elements */
+@keyframes slide-down {
+  from {
+    opacity:   0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity:   1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide up — bottom-anchored panels, modals */
+@keyframes slide-up {
+  from {
+    opacity:   0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity:   1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from left */
+@keyframes slide-in-left {
+  from {
+    opacity:   0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity:   1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from {
+    opacity:   0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity:   1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in — subtle zoom from center */
+@keyframes scale-in {
+  from {
+    opacity:   0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity:   1;
+    transform: scale(1);
+  }
+}
+
+
+/* ============================================================
+   2. KEYFRAMES — CONTINUOUS AMBIENT MOTION
+   ============================================================ */
+
+/* Float — smooth vertical levitation loop */
+@keyframes float {
+  0%,
+  100% { transform: translateY(0px);  }
+  50%  { transform: translateY(-9px); }
+}
+
+/* Float wide — larger arc for hero elements */
+@keyframes float-wide {
+  0%,
+  100% { transform: translateY(0px) scale(1);    }
+  50%  { transform: translateY(-14px) scale(1.02); }
+}
+
+/* Subtle pulse — breathing scale effect */
+@keyframes pulse {
+  0%,
+  100% { transform: scale(1);    opacity: 1;    }
+  50%  { transform: scale(1.05); opacity: 0.80; }
+}
+
+/* Dot pulse — smaller scale for badge indicators */
+@keyframes dot-pulse {
+  0%,
+  100% { transform: scale(1);    opacity: 1;    }
+  50%  { transform: scale(1.45); opacity: 0.60; }
+}
+
+/* Glow pulse — opacity-driven ambient glow */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity:   0.60;
+    transform: scale(0.97);
+  }
+  50% {
+    opacity:   1;
+    transform: scale(1.04);
+  }
+}
+
+/* Spin — full 360 rotation, used for ring elements */
+@keyframes spin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+/* Spin reverse — counterclockwise */
+@keyframes spin-reverse {
+  from { transform: rotate(0deg);    }
+  to   { transform: rotate(-360deg); }
+}
+
+
+/* ============================================================
+   3. KEYFRAMES — BACKGROUND & TEXTURE EFFECTS
+   ============================================================ */
+
+/* Gradient shift — animates background-position across 200% width */
+@keyframes gradient-shift {
+  0%   { background-position: 0%   center; }
+  50%  { background-position: 100% center; }
+  100% { background-position: 0%   center; }
+}
+
+/* Shimmer sweep — horizontal light sweep across a surface */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%);  }
+}
+
+/* Orb drift A — slow diagonal ambient background movement */
+@keyframes orb-drift-a {
+  0%   { transform: translate(0,    0   ) scale(1);    }
+  100% { transform: translate(30px, 20px) scale(1.08); }
+}
+
+/* Orb drift B — inverse diagonal drift for layered depth */
+@keyframes orb-drift-b {
+  0%   { transform: translate(0,     0   ) scale(1);    }
+  100% { transform: translate(-25px, 15px) scale(1.06); }
+}
+
+/* Waveform bar — individual bar bounce for audio visualizer */
+@keyframes wave-bar {
+  0%,
+  100% { transform: scaleY(0.25); }
+  50%  { transform: scaleY(1);    }
+}
+
+/* Sync flash — toast notification lifecycle */
+@keyframes sync-flash {
+  0%  {
+    opacity:   0;
+    transform: translateY(6px);
+  }
+  15% {
+    opacity:   1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity:   1;
+  }
+  100% {
+    opacity:   0;
+    transform: translateY(-4px);
+  }
+}
+
+
+/* ============================================================
+   4. ANIMATION UTILITY CLASSES — ENTRANCE
+   All are one-shot: fill-mode forwards, opacity starts at 0.
+   ============================================================ */
+
+.animate-fade-up {
+  opacity:         0;
+  animation:       fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  opacity:         0;
+  animation:       fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-down {
+  opacity:         0;
+  animation:       slide-down 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  opacity:         0;
+  animation:       slide-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-left {
+  opacity:         0;
+  animation:       slide-in-left 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-right {
+  opacity:         0;
+  animation:       slide-in-right 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  opacity:         0;
+  animation:       scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ============================================================
+   5. ANIMATION UTILITY CLASSES — CONTINUOUS LOOPS
+   No fill-mode: these run infinitely.
+   ============================================================ */
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 9s ease-in-out infinite;
+}
+
+.animate-float-wide {
+  animation: float-wide 7s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 1.6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow-pulse 3s ease-in-out infinite alternate;
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: spin 1.5s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 8s linear infinite;
+}
+
+.animate-wave {
+  animation: wave-bar 1.2s ease-in-out infinite;
+}
+
+.animate-sync-flash {
+  animation: sync-flash 2.6s ease-in-out forwards;
+}
+
+.animate-orb-a {
+  animation: orb-drift-a 14s ease-in-out infinite alternate;
+}
+
+.animate-orb-b {
+  animation: orb-drift-b 18s ease-in-out infinite alternate-reverse;
+}
+
+
+/* ============================================================
+   6. ANIMATION UTILITY CLASSES — BACKGROUND EFFECTS
+   Require background-size: 200% on the target element.
+   ============================================================ */
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation:       gradient-shift 4s ease infinite;
+}
+
+.animate-gradient-slow {
+  background-size: 200% auto;
+  animation:       gradient-shift 8s ease infinite;
+}
+
+/* Shimmer: applied to a pseudo-element overlay.
+   Parent needs: position: relative; overflow: hidden; */
+.animate-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer::after {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(
+    90deg,
+    transparent                  0%,
+    rgba(255, 255, 255, 0.10)   45%,
+    rgba(255, 255, 255, 0.14)   50%,
+    rgba(255, 255, 255, 0.10)   55%,
+    transparent                 100%
+  );
+  transform:  translateX(-100%);
+  animation:  shimmer 2.2s ease-in-out infinite;
+}
+
+
+/* ============================================================
+   7. STAGGER DELAY UTILITIES
+   Apply after an .animate-* class to offset entrance timing.
+   ============================================================ */
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.7s; }
+.delay-8 { animation-delay: 0.8s; }
+
+
+/* ============================================================
+   8. DURATION MODIFIER UTILITIES
+   Override the default duration on any animation.
+   ============================================================ */
+
+.duration-fast   { animation-duration: 150ms; }
+.duration-base   { animation-duration: 300ms; }
+.duration-slow   { animation-duration: 500ms; }
+.duration-slower { animation-duration: 800ms; }
+.duration-crawl  { animation-duration: 1400ms; }
+
+
+/* ============================================================
+   9. EASING MODIFIER UTILITIES
+   ============================================================ */
+
+.ease-spring  { animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);  }
+.ease-smooth  { animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+.ease-sharp   { animation-timing-function: cubic-bezier(0.7, 0, 1, 1);     }
+.ease-linear  { animation-timing-function: linear;                          }
+.ease-bounce  { animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+
+/* ============================================================
+   10. FILL MODE UTILITIES
+   ============================================================ */
+
+.fill-forwards { animation-fill-mode: forwards; }
+.fill-both     { animation-fill-mode: both;     }
+.fill-none     { animation-fill-mode: none;     }
+
+
+/* ============================================================
+   11. PLAY STATE UTILITIES
+   Useful for toggling animations via JS class addition.
+   ============================================================ */
+
+.paused  { animation-play-state: paused;  }
+.running { animation-play-state: running; }
+
+
+/* ============================================================
+   12. REDUCED MOTION — ACCESSIBILITY
+   Fully disables all animations for users who prefer it.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  /* Kill all animation and transition durations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    animation-delay:           0s     !important;
+    transition-duration:       0.01ms !important;
+  }
+
+  /* Ensure entrance-animation elements are visible immediately */
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-slide-down,
+  .animate-slide-up,
+  .animate-slide-left,
+  .animate-slide-right,
+  .animate-scale-in {
+    opacity:   1;
+    transform: none;
+  }
+
+  /* Stop background texture animations */
+  .animate-shimmer::after {
+    display: none;
+  }
+
+  /* Freeze orbs in place */
+  .animate-orb-a,
+  .animate-orb-b {
+    animation: none;
+  }
+
+}

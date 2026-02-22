@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Duo-fy — Sync music in real time with someone you love." />
+    <title>Duo-fy · Listen Together</title>
+
+    <!--
+      FIX: Google Fonts — was missing entirely from the uploaded index.html.
+
+      Fonts loaded:
+      - Cormorant Garamond: display font (tailwind.config fontFamily.display
+        AND global.css --font-display, now aligned to the same value)
+      - Jost: body font (tailwind.config fontFamily.body AND global.css --font-body)
+      - JetBrains Mono: monospace (room codes, latency badge)
+
+      preconnect hints tell the browser to open the connection to fonts.googleapis.com
+      and fonts.gstatic.com early, before the link tag is parsed, reducing FOUT.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon placeholder — replace with your actual icon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!--
+      Spotify Web Playback SDK setup.
+
+      Script order is critical:
+        1. Define window.onSpotifyWebPlaybackSDKReady BEFORE the SDK script tag.
+           The SDK fires this callback synchronously when it loads. If the
+           callback isn't defined yet, it fires into the void and is lost.
+
+        2. Load the SDK script.
+
+        3. Load the React app last (type="module" defers automatically, but
+           the explicit order still matters for the callback timing).
+
+      The `window.spotifySDKReady` flag lets React components check whether
+      the SDK has already fired before they mounted (e.g. after a hot reload).
+    -->
+    <script>
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        window.spotifySDKReady = true;
+        window.dispatchEvent(new Event("spotify-sdk-ready"));
+        console.log("[Duo-fy] Spotify Web Playback SDK ready");
+      };
+    </script>
+
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

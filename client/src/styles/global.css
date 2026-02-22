@@ -1,0 +1,853 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DUO-FY — GLOBAL STYLESHEET
+   Cinematic dark theme · Glassmorphism · Romantic tech aesthetic
+
+   Changes from previous version:
+   1. Font tokens aligned: --font-display and --font-body now match
+      tailwind.config.js fontFamily.display/body exactly. Previously
+      global.css used 'Playfair Display'/'Outfit' while Tailwind config
+      used 'Cormorant Garamond'/'Jost' — two different display fonts
+      competing on the same page.
+   2. Added missing animation utility classes used by components:
+      .animate-fade-in, .animate-dot-pulse, .animate-scale-in
+   3. Added .error-banner and .loading-overlay — App.jsx renders these
+      but they had no CSS definitions anywhere.
+   4. Added .hero__btn-spinner keyframe for loading state in Hero.jsx.
+   5. Added .modal-card__spinner keyframe for loading state in JoinRoomModal.
+   6. Added :disabled styles to btn-primary and btn-secondary.
+   7. Removed blanket mobile `btn-primary, btn-secondary { width: 100% }`
+      rule — it was making the Navbar "Sign up free" button stretch full-
+      width on mobile. Hero button full-width is handled in Hero.css.
+   ============================================================ */
+
+
+/* ============================================================
+   1. RESET & BOX SIZING
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin:     0;
+  padding:    0;
+}
+
+html {
+  scroll-behavior:          smooth;
+  text-size-adjust:         100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+img, video, svg     { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button              { cursor: pointer; background: none; border: none; }
+a                   { color: inherit; text-decoration: none; }
+ul, ol              { list-style: none; }
+h1, h2, h3, h4, h5, h6 { font-weight: inherit; line-height: 1.1; }
+p                   { line-height: 1.65; }
+
+
+/* ============================================================
+   2. DESIGN TOKENS — CSS VARIABLES
+   ============================================================ */
+
+:root {
+
+  /* ── Backgrounds ─────────────────────────────────────────── */
+  --bg-deep:         #06040f;
+  --bg-mid:          #0d0820;
+  --bg-surface:      #120e2a;
+  --bg-elevated:     #1a1438;
+
+  /* ── Accent gradient ─────────────────────────────────────── */
+  --grad-pink:       #ff6eb4;
+  --grad-purple:     #a855f7;
+  --grad-blue:       #3b82f6;
+
+  --gradient-accent: linear-gradient(
+    135deg,
+    var(--grad-pink)   0%,
+    var(--grad-purple) 50%,
+    var(--grad-blue)   100%
+  );
+
+  --gradient-accent-animated: linear-gradient(
+    135deg,
+    var(--grad-pink)   0%,
+    var(--grad-purple) 45%,
+    var(--grad-blue)   100%
+  );
+
+  /* ── Glass surfaces ──────────────────────────────────────── */
+  --glass-bg:            rgba(255, 255, 255, 0.042);
+  --glass-bg-heavy:      rgba(10, 7, 22, 0.72);
+  --glass-border:        rgba(255, 255, 255, 0.09);
+  --glass-border-accent: rgba(168, 85, 247, 0.3);
+  --glass-blur:          blur(18px);
+  --glass-blur-heavy:    blur(28px);
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --text-primary:   #f0ecff;
+  --text-secondary: #9d93c4;
+  --text-muted:     #4e4672;
+  --text-inverse:   #06040f;
+
+  /* ── Glow ────────────────────────────────────────────────── */
+  --glow-pink:          rgba(255, 110, 180, 0.22);
+  --glow-purple:        rgba(168,  85, 247, 0.20);
+  --glow-blue:          rgba( 59, 130, 246, 0.15);
+  --glow-pink-strong:   rgba(255, 110, 180, 0.40);
+  --glow-purple-strong: rgba(168,  85, 247, 0.45);
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-card:       0 24px 60px rgba(0, 0, 0, 0.55),
+                       0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  --shadow-btn:        0 8px 32px rgba(168, 85, 247, 0.35);
+  --shadow-btn-hover:  0 12px 40px rgba(168, 85, 247, 0.55);
+  --shadow-glow-pink:  0 0 24px var(--glow-pink);
+  --shadow-glow-purple:0 0 24px var(--glow-purple);
+
+  /* ── Radius scale ────────────────────────────────────────── */
+  --r-xs:   6px;
+  --r-sm:   10px;
+  --r-md:   16px;
+  --r-lg:   20px;
+  --r-xl:   28px;
+  --r-2xl:  36px;
+  --r-full: 9999px;
+
+  /* ── Typography ──────────────────────────────────────────────
+     FIX: Aligned with tailwind.config.js fontFamily tokens.
+     tailwind.config:  display = 'Cormorant Garamond', body = 'Jost'
+     Previously here: display = 'Playfair Display',    body = 'Outfit'
+     Two different display fonts were rendering depending on whether a
+     component used var(--font-display) or the Tailwind font-display class.
+  ── */
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body:    'Jost', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  /* ── Easing ──────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 1, 1);
+  --ease-io:  cubic-bezier(0.45, 0, 0.55, 1);
+  --duration-fast:   150ms;
+  --duration-base:   250ms;
+  --duration-slow:   400ms;
+  --duration-slower: 700ms;
+
+  /* ── Z-index ─────────────────────────────────────────────── */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 50;
+  --z-nav:     100;
+  --z-modal:   200;
+}
+
+
+/* ============================================================
+   3. BASE BODY & TYPOGRAPHY
+   ============================================================ */
+
+body {
+  font-family:             var(--font-body);
+  font-size:               16px;
+  font-weight:             400;
+  line-height:             1.65;
+  color:                   var(--text-primary);
+  background-color:        var(--bg-deep);
+  min-height:              100vh;
+  overflow-x:              hidden;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering:          optimizeLegibility;
+}
+
+/* Global <main> fallback — Room and Hero set their own pt- via Tailwind */
+main {
+  padding-top: 90px;
+  min-height:  100vh;
+}
+
+::selection {
+  background: rgba(168, 85, 247, 0.35);
+  color:      var(--text-primary);
+}
+
+
+/* ============================================================
+   4. CUSTOM SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(168, 85, 247, 0.3); border-radius: var(--r-full); }
+::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.55); }
+
+* { scrollbar-width: thin; scrollbar-color: rgba(168, 85, 247, 0.3) transparent; }
+
+
+/* ============================================================
+   5. FOCUS & ACCESSIBILITY
+   ============================================================ */
+
+:focus-visible {
+  outline:        2px solid rgba(168, 85, 247, 0.6);
+  outline-offset: 3px;
+  border-radius:  var(--r-xs);
+}
+
+:focus:not(:focus-visible) { outline: none; }
+
+
+/* ============================================================
+   6. ANIMATED BACKGROUND — MESH ORBS
+   ============================================================ */
+
+body::before,
+body::after {
+  content:        '';
+  position:       fixed;
+  border-radius:  50%;
+  pointer-events: none;
+  z-index:        var(--z-base);
+}
+
+/* Purple orb — top center */
+body::before {
+  top: -20%; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 900px;
+  background: radial-gradient(ellipse, rgba(168, 85, 247, 0.13) 0%, transparent 65%);
+  animation: orb-drift-a 14s ease-in-out infinite alternate;
+}
+
+/* Blue orb — bottom right */
+body::after {
+  bottom: -10%; right: -10%;
+  width: 700px; height: 700px;
+  background: radial-gradient(ellipse, rgba(59, 130, 246, 0.10) 0%, transparent 65%);
+  animation: orb-drift-b 18s ease-in-out infinite alternate-reverse;
+}
+
+.bg-orb-pink {
+  position:       fixed;
+  top:            30%;
+  left:           -5%;
+  width:          500px;
+  height:         500px;
+  border-radius:  50%;
+  background:     radial-gradient(ellipse, rgba(255, 110, 180, 0.09) 0%, transparent 65%);
+  pointer-events: none;
+  z-index:        var(--z-base);
+  animation:      orb-drift-a 11s ease-in-out infinite alternate;
+}
+
+
+/* ============================================================
+   7. GRAIN / NOISE OVERLAY
+   ============================================================ */
+
+.bg-grain {
+  position:         fixed;
+  inset:            0;
+  z-index:          1;
+  pointer-events:   none;
+  opacity:          0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:  256px 256px;
+}
+
+
+/* ============================================================
+   8. KEYFRAME ANIMATIONS
+   ============================================================ */
+
+@keyframes orb-drift-a {
+  0%   { transform: translate(0,    0  ) scale(1);    }
+  100% { transform: translate(30px, 20px) scale(1.08); }
+}
+
+@keyframes orb-drift-b {
+  0%   { transform: translate(0,     0  ) scale(1);    }
+  100% { transform: translate(-25px, 15px) scale(1.06); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* NEW: used by modal overlay */
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+/* NEW: used by modal card */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+@keyframes float {
+  0%,  100% { transform: translateY(0px); }
+  50%        { transform: translateY(-9px); }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0%   center; }
+  50%  { background-position: 100% center; }
+  100% { background-position: 0%   center; }
+}
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glow-pulse {
+  0%,  100% { opacity: 0.65; transform: scale(0.97); }
+  50%        { opacity: 1;    transform: scale(1.04); }
+}
+
+@keyframes dot-pulse {
+  0%,  100% { transform: scale(1);   opacity: 1;    }
+  50%        { transform: scale(1.4); opacity: 0.65; }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%);  }
+}
+
+/* NEW: button/modal loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ============================================================
+   9. ANIMATION UTILITY CLASSES
+   ============================================================ */
+
+.animate-fade-up {
+  opacity:   0;
+  animation: fade-up var(--duration-slower) var(--ease-out) forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s var(--ease-out) forwards;
+}
+
+/* NEW: used by modal overlay */
+.animate-fade-in {
+  animation: fade-in 0.35s var(--ease-out) forwards;
+}
+
+/* NEW: used by modal card */
+.animate-scale-in {
+  animation: scale-in 0.4s var(--ease-out) forwards;
+}
+
+.animate-float      { animation: float       5s ease-in-out infinite; }
+.animate-float-slow { animation: float       9s ease-in-out infinite; }
+.animate-glow-pulse { animation: glow-pulse  3s ease-in-out infinite; }
+.animate-ring-spin  { animation: ring-spin   8s linear     infinite; }
+
+/* NEW: used by hero badge dot and sync badge dot */
+.animate-dot-pulse  { animation: dot-pulse   1.6s ease-in-out infinite; }
+
+/* Loading spinner utility */
+.animate-spin-slow  { animation: spin 1.4s linear infinite; }
+
+/* Stagger delays */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+
+
+/* ============================================================
+   10. LAYOUT — CONTAINER
+   ============================================================ */
+
+.container {
+  width:     100%;
+  max-width: 1280px;
+  margin:    0 auto;
+  padding:   0 var(--space-xl);
+}
+
+@media (max-width: 900px) {
+  .container { padding: 0 var(--space-md); }
+}
+
+
+/* ============================================================
+   11. UTILITY — GLASS CARD
+   ============================================================ */
+
+.glass-card {
+  background:               var(--glass-bg-heavy);
+  backdrop-filter:          var(--glass-blur-heavy);
+  -webkit-backdrop-filter:  var(--glass-blur-heavy);
+  border:                   1px solid var(--glass-border);
+  border-radius:            var(--r-xl);
+  box-shadow:               var(--shadow-card);
+  background-image:         linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent               50%
+  );
+}
+
+.glass-card-light {
+  background:               var(--glass-bg);
+  backdrop-filter:          var(--glass-blur);
+  -webkit-backdrop-filter:  var(--glass-blur);
+  border:                   1px solid var(--glass-border);
+  border-radius:            var(--r-xl);
+  box-shadow:               var(--shadow-card);
+}
+
+
+/* ============================================================
+   12. UTILITY — BUTTONS
+   ============================================================ */
+
+.btn-primary {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-sm);
+  padding:         13px 28px;
+  border-radius:   var(--r-md);
+  border:          none;
+  background:      var(--gradient-accent);
+  background-size: 200% auto;
+  color:           #ffffff;
+  font-family:     var(--font-body);
+  font-size:       0.95rem;
+  font-weight:     600;
+  letter-spacing:  0.01em;
+  cursor:          pointer;
+  position:        relative;
+  overflow:        hidden;
+  box-shadow:      var(--shadow-btn);
+  transition:
+    transform          var(--duration-base) var(--ease-out),
+    box-shadow         var(--duration-base) var(--ease-out),
+    background-position 0.5s ease,
+    opacity            var(--duration-fast) ease;
+}
+
+.btn-primary::before {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent);
+  opacity:    0;
+  transition: opacity var(--duration-base) ease;
+}
+
+.btn-primary:hover              { transform: translateY(-2px); box-shadow: var(--shadow-btn-hover); background-position: right center; }
+.btn-primary:hover::before      { opacity: 1; }
+.btn-primary:active             { transform: translateY(0); box-shadow: var(--shadow-btn); }
+/* FIX: added — buttons were never visually disabled */
+.btn-primary:disabled           { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Shimmer variant — correct class is "shimmer", not "animate-shimmer" */
+.btn-primary.shimmer::after {
+  content:    '';
+  position:   absolute;
+  inset:      0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.14) 50%, transparent 100%);
+  transform:  translateX(-100%);
+}
+
+.btn-primary.shimmer:hover::after {
+  animation: shimmer 0.65s var(--ease-out) forwards;
+}
+
+.btn-secondary {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-sm);
+  padding:         12px 26px;
+  border-radius:   var(--r-md);
+  border:          1px solid rgba(168, 85, 247, 0.35);
+  background:      rgba(168, 85, 247, 0.07);
+  color:           var(--text-primary);
+  font-family:     var(--font-body);
+  font-size:       0.95rem;
+  font-weight:     500;
+  cursor:          pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    transform    var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) ease,
+    background   var(--duration-base) ease,
+    opacity      var(--duration-fast) ease;
+}
+
+.btn-secondary:hover   { transform: translateY(-1px); border-color: rgba(168, 85, 247, 0.6); background: rgba(168, 85, 247, 0.13); }
+.btn-secondary:active  { transform: translateY(0); }
+/* FIX: added — buttons were never visually disabled */
+.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             var(--space-sm);
+  padding:         8px 18px;
+  border-radius:   var(--r-full);
+  border:          1px solid var(--glass-border);
+  background:      transparent;
+  color:           var(--text-secondary);
+  font-family:     var(--font-body);
+  font-size:       0.875rem;
+  font-weight:     500;
+  cursor:          pointer;
+  transition:
+    border-color var(--duration-base) ease,
+    color        var(--duration-base) ease,
+    background   var(--duration-base) ease;
+}
+
+.btn-ghost:hover   { border-color: var(--glass-border-accent); color: var(--text-primary); background: rgba(168, 85, 247, 0.08); }
+.btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+
+
+/* ============================================================
+   13. UTILITY — ACCENT TEXT
+   ============================================================ */
+
+.accent-text {
+  background:              var(--gradient-accent);
+  background-size:         200% auto;
+  -webkit-background-clip: text;
+  background-clip:         text;
+  -webkit-text-fill-color: transparent;
+  animation:               gradient-shift 4s ease infinite;
+}
+
+.accent-text-static {
+  background:              var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip:         text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+/* ============================================================
+   14. UTILITY — SYNC BADGE
+   ============================================================ */
+
+.sync-badge {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  padding:       4px 12px;
+  border-radius: var(--r-full);
+  background:    var(--gradient-accent);
+  color:         #ffffff;
+  font-family:   var(--font-body);
+  font-size:     0.68rem;
+  font-weight:   700;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  box-shadow:    0 4px 18px var(--glow-purple);
+  white-space:   nowrap;
+}
+
+.sync-badge__dot {
+  width:         5px;
+  height:        5px;
+  border-radius: 50%;
+  background:    #ffffff;
+  flex-shrink:   0;
+  animation:     dot-pulse 1.6s ease-in-out infinite;
+}
+
+.sync-badge--outline {
+  background:  transparent;
+  border:      1px solid var(--glass-border-accent);
+  color:       var(--grad-purple);
+  box-shadow:  none;
+}
+
+.sync-badge--outline .sync-badge__dot { background: var(--grad-purple); }
+
+
+/* ============================================================
+   15. UTILITY — GRADIENT RING
+   ============================================================ */
+
+.gradient-ring {
+  position:       relative;
+  display:        flex;
+  align-items:    center;
+  justify-content:center;
+  border-radius:  50%;
+}
+
+.gradient-ring::before {
+  content:       '';
+  position:      absolute;
+  inset:         -3px;
+  border-radius: 50%;
+  background:    conic-gradient(from 0deg, var(--grad-pink), var(--grad-purple), var(--grad-blue), var(--grad-pink));
+  animation:     ring-spin 8s linear infinite;
+  mask:          radial-gradient(circle at center, transparent 60%, black 62%);
+  -webkit-mask:  radial-gradient(circle at center, transparent 60%, black 62%);
+}
+
+.gradient-ring::after {
+  content:       '';
+  position:      absolute;
+  inset:         -20px;
+  border-radius: 50%;
+  background:    radial-gradient(ellipse, rgba(168, 85, 247, 0.22) 0%, transparent 65%);
+  animation:     glow-pulse 3s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+
+
+/* ============================================================
+   16. UTILITY — PROGRESS BAR
+   ============================================================ */
+
+.progress-track {
+  width:         100%;
+  height:        3px;
+  border-radius: var(--r-full);
+  background:    rgba(255, 255, 255, 0.08);
+  position:      relative;
+  cursor:        pointer;
+  overflow:      visible;
+}
+
+.progress-fill {
+  height:        100%;
+  border-radius: var(--r-full);
+  background:    var(--gradient-accent);
+  position:      relative;
+  box-shadow:    0 0 12px var(--glow-purple);
+  transition:    width 0.1s linear;
+}
+
+.progress-thumb {
+  position:      absolute;
+  right:         -4px;
+  top:           50%;
+  transform:     translateY(-50%);
+  width:         11px;
+  height:        11px;
+  border-radius: 50%;
+  background:    #ffffff;
+  box-shadow:    0 0 10px var(--glow-purple-strong);
+  opacity:       0;
+  transition:    opacity var(--duration-fast) ease;
+}
+
+.progress-track:hover .progress-thumb { opacity: 1; }
+
+
+/* ============================================================
+   17. COMPONENT — NAVBAR (base; Navbar.css adds logo/action styles)
+   ============================================================ */
+
+.navbar {
+  position:        fixed;
+  top: 0; left: 0; right: 0;
+  z-index:         var(--z-nav);
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         0 var(--space-xl);
+  height:          72px;
+  background:      rgba(6, 4, 15, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-bottom:   1px solid rgba(255, 255, 255, 0.055);
+  transition:
+    background var(--duration-slow) ease,
+    box-shadow var(--duration-slow) ease;
+  animation:       slide-down 0.6s var(--ease-out) forwards;
+}
+
+.navbar--scrolled {
+  background: rgba(6, 4, 15, 0.85);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05),
+              0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 900px) {
+  .navbar { padding: 0 var(--space-md); height: 62px; }
+}
+
+
+/* ============================================================
+   18. COMPONENT — FLOATING CARD
+   ============================================================ */
+
+.floating-card {
+  position:        relative;
+  background:      rgba(10, 7, 22, 0.75);
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border:          1px solid var(--glass-border);
+  border-radius:   var(--r-xl);
+  box-shadow:      var(--shadow-card), 0 1px 0 rgba(255, 255, 255, 0.07) inset;
+  animation:       float 5s ease-in-out infinite;
+  padding:         var(--space-md) calc(var(--space-md) + 4px);
+}
+
+
+/* ============================================================
+   19. COMPONENT — ERROR BANNER (NEW — was missing, App.jsx uses it)
+   ============================================================ */
+
+.error-banner {
+  position:        fixed;
+  top:             calc(72px + var(--space-md));
+  left:            50%;
+  transform:       translateX(-50%);
+  z-index:         var(--z-overlay);
+  display:         flex;
+  align-items:     center;
+  gap:             var(--space-md);
+  padding:         10px var(--space-md);
+  max-width:       min(540px, calc(100vw - var(--space-xl)));
+  width:           100%;
+  border-radius:   var(--r-md);
+  background:      rgba(255, 110, 180, 0.12);
+  border:          1px solid rgba(255, 110, 180, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size:       0.875rem;
+  color:           #fca5c7;
+  animation:       fade-in 0.25s var(--ease-out) forwards;
+}
+
+.error-banner span { flex: 1; }
+
+.error-banner button {
+  background:  none;
+  border:      none;
+  color:       rgba(255, 110, 180, 0.5);
+  cursor:      pointer;
+  font-size:   1.1rem;
+  line-height: 1;
+  padding:     2px 4px;
+  flex-shrink: 0;
+  transition:  color var(--duration-fast) ease;
+}
+
+.error-banner button:hover { color: #ff6eb4; }
+
+
+/* ============================================================
+   20. COMPONENT — LOADING OVERLAY (NEW — was missing, App.jsx uses it)
+   ============================================================ */
+
+.loading-overlay {
+  position:        fixed;
+  inset:           0;
+  z-index:         calc(var(--z-modal) - 1);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  background:      rgba(6, 4, 15, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.loading-spinner {
+  width:            40px;
+  height:           40px;
+  border-radius:    50%;
+  border:           3px solid rgba(168, 85, 247, 0.2);
+  border-top-color: var(--grad-purple);
+  animation:        spin 0.75s linear infinite;
+}
+
+/* Inline button/modal spinner — applied directly to SVG elements */
+.hero__btn-spinner,
+.modal-card__spinner {
+  animation: spin 1.1s linear infinite;
+}
+
+
+/* ============================================================
+   21. RESPONSIVE — MOBILE ( ≤ 900px )
+
+   FIX: Removed `.btn-primary, .btn-secondary { width: 100% }` from
+   this block. That rule was forcing the Navbar "Sign up free" button
+   to stretch full-width on mobile, breaking the header layout.
+   Hero button full-width at mobile is handled in Hero.css ≤480px rule.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body::before { width: 500px; height: 500px; }
+  body::after  { width: 400px; height: 400px; }
+  .bg-orb-pink { width: 300px; height: 300px; }
+
+  .glass-card,
+  .glass-card-light { border-radius: var(--r-lg); }
+
+  .floating-card--docked {
+    position:      fixed;
+    bottom:        var(--space-md);
+    left:          var(--space-sm);
+    right:         var(--space-sm);
+    border-radius: var(--r-xl);
+    z-index:       var(--z-overlay);
+    animation:     none;
+  }
+}
+
+
+/* ============================================================
+   22. REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+  }
+
+  .animate-fade-up {
+    opacity:   1;
+    transform: none;
+  }
+
+}

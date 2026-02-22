@@ -1,0 +1,215 @@
+/* ============================================================
+   JOIN ROOM MODAL — Component Styles
+   Glassmorphism dialog for entering a room code.
+   Depends on: global.css (tokens, .glass-card, btn-*)
+               animations.css (animate-fade-in, animate-scale-in)
+   ============================================================ */
+
+
+/* ── Overlay ───────────────────────────────────────────────── */
+
+.modal-overlay {
+  position:        fixed;
+  inset:           0;
+  z-index:         var(--z-modal);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         var(--space-md);
+
+  /* Frosted backdrop */
+  background:      rgba(6, 4, 15, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+
+/* ── Modal Card ────────────────────────────────────────────── */
+
+.modal-card {
+  width:      100%;
+  max-width:  420px;
+  padding:    var(--space-xl) var(--space-xl);
+
+  /* Override glass-card radius to be slightly tighter */
+  border-radius: var(--r-xl) !important;
+
+  /* Prevent card from inheriting overlay click */
+  position: relative;
+}
+
+@media (max-width: 480px) {
+  .modal-card {
+    padding:       var(--space-lg) var(--space-md);
+    border-radius: var(--r-lg) !important;
+  }
+}
+
+
+/* ── Header ────────────────────────────────────────────────── */
+
+.modal-card__header {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.modal-card__icon {
+  width:         44px;
+  height:        44px;
+  border-radius: var(--r-sm);
+  background:    rgba(168, 85, 247, 0.12);
+  border:        1px solid rgba(168, 85, 247, 0.2);
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  flex-shrink:   0;
+}
+
+.modal-card__title {
+  font-family:   var(--font-display);
+  font-size:     1.35rem;
+  font-weight:   700;
+  letter-spacing:-0.02em;
+  color:         var(--text-primary);
+  line-height:   1.2;
+  margin-bottom: 4px;
+}
+
+.modal-card__subtitle {
+  font-size:   0.84rem;
+  color:       var(--text-muted);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Close button — top-right absolute on wide, pushes left on narrow */
+.modal-card__close {
+  margin-left:     auto;
+  flex-shrink:     0;
+  width:           32px;
+  height:          32px;
+  border-radius:   var(--r-sm);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  color:           var(--text-muted);
+  background:      transparent;
+  border:          1px solid transparent;
+  cursor:          pointer;
+  transition:
+    color            var(--duration-fast) ease,
+    background       var(--duration-fast) ease,
+    border-color     var(--duration-fast) ease;
+}
+
+.modal-card__close:hover {
+  color:        var(--text-primary);
+  background:   var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.modal-card__close:focus-visible {
+  outline:       2px solid rgba(168, 85, 247, 0.6);
+  outline-offset:2px;
+}
+
+
+/* ── Form ──────────────────────────────────────────────────── */
+
+.modal-card__form {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-lg);
+}
+
+.modal-card__field {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-sm);
+}
+
+.modal-card__label {
+  font-size:     0.8rem;
+  font-weight:   600;
+  color:         var(--text-secondary);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+
+.modal-card__input {
+  width:         100%;
+  padding:       13px var(--space-md);
+  border-radius: var(--r-md);
+  border:        1px solid var(--glass-border);
+  background:    rgba(255, 255, 255, 0.035);
+  color:         var(--text-primary);
+  font-family:   var(--font-mono);
+  font-size:     1.05rem;
+  font-weight:   600;
+  letter-spacing:0.2em;
+  text-align:    center;
+  text-transform:uppercase;
+  outline:       none;
+  caret-color:   var(--grad-purple);
+
+  transition:
+    border-color var(--duration-base) ease,
+    background   var(--duration-base) ease,
+    box-shadow   var(--duration-base) ease;
+}
+
+.modal-card__input::placeholder {
+  color:         var(--text-muted);
+  letter-spacing:0.1em;
+  font-weight:   400;
+}
+
+.modal-card__input:focus {
+  border-color: rgba(168, 85, 247, 0.5);
+  background:   rgba(168, 85, 247, 0.06);
+  box-shadow:   0 0 0 3px rgba(168, 85, 247, 0.12);
+}
+
+.modal-card__input--error {
+  border-color: rgba(255, 110, 180, 0.5);
+  background:   rgba(255, 110, 180, 0.05);
+}
+
+.modal-card__input--error:focus {
+  border-color: rgba(255, 110, 180, 0.6);
+  box-shadow:   0 0 0 3px rgba(255, 110, 180, 0.12);
+}
+
+.modal-card__error {
+  font-size:  0.8rem;
+  color:      var(--grad-pink);
+  font-weight:500;
+  padding-left: 2px;
+}
+
+
+/* ── Actions ───────────────────────────────────────────────── */
+
+.modal-card__actions {
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--space-sm);
+}
+
+.modal-card__btn-join {
+  width:           100%;
+  justify-content: center;
+  padding:         14px;
+  font-size:       0.975rem;
+  gap:             var(--space-sm);
+}
+
+.modal-card__btn-cancel {
+  width:           100%;
+  justify-content: center;
+  padding:         11px;
+  font-size:       0.9rem;
+  border-radius:   var(--r-md);
+}

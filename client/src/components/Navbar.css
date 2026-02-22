@@ -1,0 +1,104 @@
+/* ============================================================
+   NAVBAR — Component Styles
+   ============================================================ */
+
+.navbar__logo {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+/* Real PNG logo mark — just the icon, no text */
+.navbar__logo-img {
+  width:       36px;
+  height:      36px;
+  object-fit:  contain;
+  flex-shrink: 0;
+  transition:  transform var(--duration-base) var(--ease-out),
+               filter    var(--duration-base) ease;
+  /* Slight drop shadow to help it pop on dark bg */
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.45));
+}
+
+.navbar__logo:hover .navbar__logo-img {
+  transform: scale(1.08);
+  filter:    drop-shadow(0 0 14px rgba(168, 85, 247, 0.7));
+}
+
+.navbar__logo-text {
+  font-family:   var(--font-display);
+  font-size:     1.3rem;
+  font-weight:   700;
+  letter-spacing:-0.025em;
+  line-height:   1;
+  background:    linear-gradient(to right, #ffffff 25%, var(--grad-purple) 100%);
+  -webkit-background-clip: text;
+  background-clip:         text;
+  -webkit-text-fill-color: transparent;
+  transition:    opacity var(--duration-base) ease;
+}
+
+.navbar__logo:hover .navbar__logo-text { opacity: 0.85; }
+
+/* Actions */
+.navbar__actions {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+}
+
+.navbar__btn-signup {
+  padding:    8px 20px;
+  font-size:  0.875rem;
+  box-shadow: 0 4px 18px rgba(168, 85, 247, 0.28);
+}
+.navbar__btn-signup:hover { box-shadow: 0 6px 26px rgba(168, 85, 247, 0.45); }
+
+/* Connected / Spotify green state */
+.navbar__btn-connected {
+  display:         inline-flex;
+  align-items:     center;
+  gap:             8px;
+  padding:         8px 16px;
+  border-radius:   var(--r-full);
+  border:          1px solid rgba(30, 215, 96, 0.25);
+  background:      rgba(30, 215, 96, 0.07);
+  color:           rgba(30, 215, 96, 0.85);
+  font-family:     var(--font-body);
+  font-size:       0.855rem;
+  font-weight:     500;
+  cursor:          pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color var(--duration-base) ease,
+    background   var(--duration-base) ease,
+    color        var(--duration-base) ease,
+    transform    var(--duration-base) var(--ease-out);
+}
+.navbar__btn-connected:hover {
+  border-color: rgba(30, 215, 96, 0.45);
+  background:   rgba(30, 215, 96, 0.13);
+  color:        rgba(30, 215, 96, 1);
+  transform:    translateY(-1px);
+}
+.navbar__btn-connected:active { transform: translateY(0); }
+
+.navbar__connected-dot {
+  width:         6px;
+  height:        6px;
+  border-radius: 50%;
+  background:    rgba(30, 215, 96, 0.9);
+  box-shadow:    0 0 8px rgba(30, 215, 96, 0.7);
+  flex-shrink:   0;
+  animation:     dot-pulse 2s ease-in-out infinite;
+}
+
+@media (max-width: 480px) {
+  .navbar__logo-text      { font-size: 1.1rem; }
+  .navbar__logo-img       { width: 30px; height: 30px; }
+  .navbar__connected-text { display: none; }
+  .navbar__btn-signup     { padding: 7px 14px; font-size: 0.82rem; }
+}
