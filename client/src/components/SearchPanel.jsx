@@ -1,3 +1,9 @@
+/**
+ * src/components/SearchPanel.jsx
+ *
+ * Full-screen Spotify search overlay.
+ * Debounced query → instant results → play now or add to queue.
+ */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { spotifySearch, spotifyPlay, spotifyAddToQueue } from "../hooks/useSpotifyPlayer";
 import "./SearchPanel.css";
@@ -6,128 +12,119 @@ export default function SearchPanel({ accessToken, deviceId, onClose, onTrackPla
   const [query,   setQuery]   = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [queued,  setQueued]  = useState({}); // trackId → true for toast
+  const [queued,  setQueued]  = useState({}); // trackId → true
 
   const inputRef    = useRef(null);
   const debounceRef = useRef(null);
 
-  // Focus on mount
-  useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.focus(), 80);
-    return () => clearTimeout(t);
-  }, []);
+  useEffect(() => { setTimeout(() => inputRef.current?.focus(), 80); }, []);
 
-  // Close on Escape
   useEffect(() => {
-    const h = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
+    const handleKey = e => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  // Debounced search
   useEffect(() => {
     clearTimeout(debounceRef.current);
-    if (!query.trim()) { setResults([]); return; }
-
+    if (!query.trim()) { setResults([]); setLoading(false); return; }
     setLoading(true);
     debounceRef.current = setTimeout(async () => {
       const tracks = await spotifySearch(accessToken, query);
       setResults(tracks);
       setLoading(false);
-    }, 380);
-
+    }, 350);
     return () => clearTimeout(debounceRef.current);
   }, [query, accessToken]);
 
-  const handlePlay = useCallback(async (track) => {
-    await spotifyPlay(accessToken, deviceId, { uris: [track.uri] });
+  const handlePlay = useCallback(async track => {
+    await spotifyPlay(accessToken, deviceId, { uris: [track.uri] }).catch(() => {});
     onTrackPlay?.(track);
     onClose();
   }, [accessToken, deviceId, onClose, onTrackPlay]);
 
-  const handleAddQueue = useCallback(async (track) => {
-    await spotifyAddToQueue(accessToken, track.uri);
-    setQueued(prev => ({ ...prev, [track.id]: true }));
-    setTimeout(() => setQueued(prev => { const n = { ...prev }; delete n[track.id]; return n; }), 2000);
+  const handleQueue = useCallback(async track => {
+    await spotifyAddToQueue(accessToken, track.uri).catch(() => {});
+    setQueued(p => ({ ...p, [track.id]: true }));
+    setTimeout(() => setQueued(p => { const n = { ...p }; delete n[track.id]; return n; }), 2200);
   }, [accessToken]);
 
-  const fmtDuration = (ms) => {
-    const s = Math.floor(ms / 1000);
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  };
+  const fmt = ms => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 
   return (
-    <div className="search-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="search-panel">
+    <div className="sp-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div className="sp-panel">
 
-        {/* Header */}
-        <div className="search-panel__header">
-          <div className="search-panel__input-wrap">
-            <SearchIcon />
+        {/* Search input */}
+        <div className="sp-header">
+          <div className="sp-input-wrap">
+            <svg className="sp-input-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.018-.784zm-5.242 1.156a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/>
+            </svg>
             <input
               ref={inputRef}
+              className="sp-input"
               type="text"
-              className="search-panel__input"
-              placeholder="Search songs, artists…"
+              placeholder="Search songs, artists, albums…"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={e => setQuery(e.target.value)}
               autoComplete="off"
               spellCheck="false"
             />
-            {loading && <div className="search-panel__spinner" />}
+            {loading && <div className="sp-spinner" />}
             {query && !loading && (
-              <button className="search-panel__clear" onClick={() => setQuery("")} aria-label="Clear">✕</button>
+              <button className="sp-clear" onClick={() => setQuery("")}>✕</button>
             )}
           </div>
-          <button className="search-panel__close" onClick={onClose} aria-label="Close search">Cancel</button>
+          <button className="sp-cancel" onClick={onClose}>Cancel</button>
         </div>
 
         {/* Results */}
-        <div className="search-panel__results">
+        <div className="sp-results">
           {!query && (
-            <div className="search-panel__empty">
-              <p className="search-panel__empty-icon">🎵</p>
-              <p className="search-panel__empty-text">Search for a song to play together</p>
+            <div className="sp-empty">
+              <div className="sp-empty-icon">🔍</div>
+              <p>Search for a song to play together</p>
             </div>
           )}
 
           {query && !loading && results.length === 0 && (
-            <div className="search-panel__empty">
-              <p className="search-panel__empty-icon">🔍</p>
-              <p className="search-panel__empty-text">No results for "{query}"</p>
+            <div className="sp-empty">
+              <div className="sp-empty-icon">🎵</div>
+              <p>No results for "{query}"</p>
             </div>
           )}
 
-          {results.map((track) => (
-            <div key={track.id} className="search-result">
+          {results.map(track => (
+            <div key={track.id} className="sp-track">
               <img
-                src={track.album?.images?.[2]?.url ?? track.album?.images?.[0]?.url}
+                src={track.album?.images?.[2]?.url ?? track.album?.images?.[0]?.url ?? ""}
                 alt=""
-                className="search-result__art"
+                className="sp-track__art"
               />
-              <div className="search-result__info">
-                <p className="search-result__name">{track.name}</p>
-                <p className="search-result__meta">
+              <div className="sp-track__info">
+                <p className="sp-track__name">{track.name}</p>
+                <p className="sp-track__meta">
                   {track.artists.map(a => a.name).join(", ")}
-                  <span className="search-result__dot">·</span>
+                  <span className="sp-track__dot">·</span>
                   {track.album.name}
                 </p>
               </div>
-              <span className="search-result__duration">{fmtDuration(track.duration_ms)}</span>
-              <div className="search-result__actions">
+              <span className="sp-track__dur">{fmt(track.duration_ms)}</span>
+              <div className="sp-track__actions">
                 <button
-                  className="search-result__btn search-result__btn--queue"
-                  onClick={() => handleAddQueue(track)}
+                  className={`sp-btn sp-btn--queue ${queued[track.id] ? "sp-btn--queued" : ""}`}
+                  onClick={() => handleQueue(track)}
                   title="Add to queue"
                 >
-                  {queued[track.id] ? "✓" : <QueueIcon />}
+                  {queued[track.id] ? "✓" : (
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">
+                      <path d="M1 2.5h9M1 5.5h9M1 8.5h5M9.5 8v4M7.5 10h4"/>
+                    </svg>
+                  )}
                 </button>
-                <button
-                  className="search-result__btn search-result__btn--play"
-                  onClick={() => handlePlay(track)}
-                  title="Play now"
-                >
-                  <PlayIcon />
+                <button className="sp-btn sp-btn--play" onClick={() => handlePlay(track)}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 1l7 4-7 4V1z"/></svg>
                   Play
                 </button>
               </div>
@@ -136,31 +133,5 @@ export default function SearchPanel({ accessToken, deviceId, onClose, onTrackPla
         </div>
       </div>
     </div>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M11.742 10.344a6.5 6.5 0 10-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 001.415-1.414l-3.85-3.85a1.007 1.007 0 00-.115-.099zm-5.242 1.156a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/>
-    </svg>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor">
-      <path d="M2 1l8 4.5L2 10V1z"/>
-    </svg>
-  );
-}
-
-function QueueIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-      <path d="M1 2.5h10M1 5.5h10M1 8.5h6M10 8l2 2-2 2V8z"/>
-      <path d="M1 2.5h10M1 5.5h10M1 8.5h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-      <path d="M10.5 8v5M8 10.5h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-    </svg>
   );
 }
