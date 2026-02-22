@@ -1,10 +1,3 @@
-/**
- * src/components/Room.jsx
- *
- * Complete shared music room.
- * Features: real Spotify audio, search, queue, partner presence,
- * sync celebration, reactions, session summary, device banner.
- */
 import { useState, useEffect, useCallback, useRef } from "react";
 import socketService from "../socket";
 import { useSpotify, fmtMs } from "../hooks/useSpotify";
