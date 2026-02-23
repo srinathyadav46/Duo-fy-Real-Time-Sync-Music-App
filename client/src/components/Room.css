@@ -178,7 +178,7 @@
   background:var(--text-3);
   transition:background 0.4s, box-shadow 0.4s;
 }
-.conn-dot--live { background:rgba(34,197,94,0.9); box-shadow:0 0 8px rgba(34,197,94,0.6); animation:pdot 2.5s infinite; }
+.conn-dot--live { background:rgba(34,197,94,0.85); box-shadow:0 0 6px rgba(34,197,94,0.5); animation:pdot 2.5s infinite; }
 
 /* ════════════════════════════════════════════════════════════════
    MAIN SCROLL — single vertical column
@@ -186,8 +186,8 @@
 .room-scroll {
   flex:1;
   display:flex; flex-direction:column; align-items:stretch;
-  gap:12px;
-  padding:16px 16px calc(var(--bar-h) + 16px);
+  gap:14px;
+  padding:20px 16px calc(var(--bar-h) + 20px);
   position:relative; z-index:1;
   overflow-y:auto; overflow-x:hidden;
   width:100%;
@@ -200,12 +200,13 @@
    ROOM CODE CARD — prominent, impossible to miss
 ════════════════════════════════════════════════════════════════ */
 .room-code-card {
-  background:   var(--bg-card);
-  border:       1px solid rgba(168,85,247,0.25);
-  border-radius:18px;
-  padding:      24px 20px;
+  background:   rgba(11, 7, 26, 0.88);
+  border:       1px solid rgba(168,85,247,0.18);
+  border-radius:20px;
+  padding:      28px 20px;
   text-align:   center;
-  backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  backdrop-filter:blur(32px); -webkit-backdrop-filter:blur(32px);
+  box-shadow:   0 12px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset;
   animation:    card-in 0.4s var(--spring) forwards;
 }
 @keyframes card-in { from{opacity:0;transform:translateY(16px) scale(0.97)} to{opacity:1;transform:none} }
@@ -288,16 +289,16 @@
 }
 .p-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
-.p-avatar--me      { background:var(--grad); box-shadow:0 0 0 2px rgba(255,110,180,0.3); }
+.p-avatar--me      { background:var(--grad); box-shadow:0 0 0 2px rgba(255,110,180,0.22); }
 .p-avatar--partner { background:linear-gradient(135deg,var(--purple),var(--cyan)); }
 .p-avatar--waiting { background:rgba(255,255,255,0.05); color:var(--text-3); }
 .p-avatar__ghost   { font-size:1.2rem; color:var(--text-3); }
 
 /* Heartbeat pulse when both playing */
-.p-avatar--playing { animation:hb-avatar 2s ease-in-out infinite; }
+.p-avatar--playing { animation:hb-avatar 2.2s ease-in-out infinite; }
 @keyframes hb-avatar {
-  0%,100% { box-shadow:0 0 0 3px rgba(255,110,180,0.35), 0 0 18px rgba(255,110,180,0.25); }
-  50%     { box-shadow:0 0 0 6px rgba(255,110,180,0.15), 0 0 32px rgba(255,110,180,0.5); }
+  0%,100% { box-shadow:0 0 0 2px rgba(255,110,180,0.25), 0 0 12px rgba(255,110,180,0.15); }
+  50%     { box-shadow:0 0 0 5px rgba(255,110,180,0.1),  0 0 24px rgba(255,110,180,0.35); }
 }
 
 .p-avatar__beat {
@@ -365,26 +366,27 @@
    PLAYER CARD
 ════════════════════════════════════════════════════════════════ */
 .player-card {
-  background:      var(--bg-card);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter:blur(40px);
-  border:          1px solid var(--border);
+  background:      rgba(11, 7, 26, 0.88);
+  backdrop-filter: blur(48px);
+  -webkit-backdrop-filter:blur(48px);
+  border:          1px solid rgba(255,255,255,0.09);
   border-radius:   22px;
   padding:         20px;
   display:         flex;
   flex-direction:  column;
-  gap:             16px;
-  box-shadow:      0 32px 72px rgba(0,0,0,0.65), 0 0 60px rgba(168,85,247,0.09);
+  gap:             18px;
+  box-shadow:      0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03) inset;
   position:        relative; overflow:hidden;
   transition:      box-shadow 0.5s, border-color 0.5s;
 }
 .player-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:1px;
-  background:linear-gradient(to right, transparent 10%, rgba(255,255,255,0.12) 50%, transparent 90%);
+  background:linear-gradient(to right, transparent 5%, rgba(255,255,255,0.1) 50%, transparent 95%);
+  pointer-events:none;
 }
-.player-card--playing { border-color:rgba(255,110,180,0.2); box-shadow:0 32px 72px rgba(0,0,0,0.65), 0 0 72px rgba(255,110,180,0.15); }
+.player-card--playing { border-color:rgba(255,110,180,0.15); box-shadow:0 24px 56px rgba(0,0,0,0.55), 0 0 48px rgba(255,110,180,0.08); }
 .player-card--synced  { animation:card-synced 3s ease-out; }
-@keyframes card-synced { 0%{border-color:rgba(255,255,255,0.08)} 15%{border-color:rgba(168,85,247,0.7);box-shadow:0 32px 72px rgba(0,0,0,0.65),0 0 100px rgba(168,85,247,0.4)} 100%{border-color:rgba(255,110,180,0.2)} }
+@keyframes card-synced { 0%{border-color:rgba(255,255,255,0.09)} 15%{border-color:rgba(168,85,247,0.5);box-shadow:0 24px 56px rgba(0,0,0,0.55),0 0 72px rgba(168,85,247,0.28)} 100%{border-color:rgba(255,110,180,0.15)} }
 
 /* ── Album art — full width ───────────────────────────────────── */
 .art-container {
@@ -398,7 +400,7 @@
   transition:     box-shadow 0.5s;
   flex-shrink:    0;
 }
-.art-container--playing { box-shadow:0 16px 52px rgba(168,85,247,0.4), 0 12px 40px rgba(0,0,0,0.6); }
+.art-container--playing { box-shadow:0 12px 36px rgba(168,85,247,0.28), 0 8px 28px rgba(0,0,0,0.55); }
 .art-img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 1s ease; }
 .art-container--playing .art-img { transform:scale(1.03); }
 .art-placeholder { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
@@ -454,7 +456,7 @@
 .progress-fill {
   height:100%; border-radius:99px;
   background:var(--grad-3);
-  position:relative; box-shadow:0 0 12px rgba(168,85,247,0.5);
+  position:relative; box-shadow:0 0 8px rgba(168,85,247,0.35);
   transition:width 0.5s linear;
 }
 .progress-thumb {
@@ -494,12 +496,12 @@
 
 .ctrl--play {
   width:80px; height:80px; border-radius:50%;
-  box-shadow:0 0 40px rgba(168,85,247,0.55), 0 10px 30px rgba(0,0,0,0.45);
+  box-shadow:0 0 24px rgba(168,85,247,0.38), 0 8px 24px rgba(0,0,0,0.5);
   transition:transform 0.15s var(--spring), box-shadow 0.2s;
   position:relative;
 }
 .ctrl--play { background:var(--grad-3); color:#fff; }
-.ctrl--pause { background:var(--grad); color:#fff; box-shadow:0 0 40px rgba(255,110,180,0.55), 0 10px 30px rgba(0,0,0,0.45); }
+.ctrl--pause { background:var(--grad); color:#fff; box-shadow:0 0 24px rgba(255,110,180,0.38), 0 8px 24px rgba(0,0,0,0.5); }
 .ctrl--celebrating { animation:play-pop 3s ease-out; }
 @keyframes play-pop { 0%{transform:scale(1)} 12%{transform:scale(1.25)} 28%{transform:scale(0.95)} 40%{transform:scale(1.1)} 100%{transform:scale(1)} }
 .ctrl--play:hover:not(:disabled)  { transform:scale(1.07); }
@@ -601,9 +603,10 @@
   justify-content: space-between;
   padding:         0 16px;
   gap:             12px;
-  background:      rgba(6,4,16,0.97);
-  backdrop-filter: blur(32px); -webkit-backdrop-filter:blur(32px);
-  border-top:      1px solid var(--border);
+  background:      rgba(5, 3, 14, 0.98);
+  backdrop-filter: blur(40px); -webkit-backdrop-filter:blur(40px);
+  border-top:      1px solid rgba(255,255,255,0.07);
+  box-shadow:      0 -8px 32px rgba(0,0,0,0.35);
   /* Safe area for iOS home indicator */
   padding-bottom:  env(safe-area-inset-bottom, 0px);
 }
