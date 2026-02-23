@@ -15,17 +15,17 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 
-const SDK_URL     = "https://sdk.scdn.co/spotify-player.js";
+const SDK_URL = "https://sdk.scdn.co/spotify-player.js";
 const PLAYER_NAME = "Duo-fy";
 
 export function useSpotifyPlayer(accessToken) {
-  const [deviceId,    setDeviceId]    = useState(null);
+  const [deviceId, setDeviceId] = useState(null);
   const [playerReady, setPlayerReady] = useState(false);
   const [playerError, setPlayerError] = useState(null);
-  const [volume,      setVolumeState] = useState(0.7);
+  const [volume, setVolumeState] = useState(0.7);
 
   const playerRef = useRef(null);
-  const tokenRef  = useRef(accessToken);
+  const tokenRef = useRef(accessToken);
   useEffect(() => { tokenRef.current = accessToken; }, [accessToken]);
 
   useEffect(() => {
@@ -35,9 +35,9 @@ export function useSpotifyPlayer(accessToken) {
       if (playerRef.current) return;
 
       const player = new window.Spotify.Player({
-        name:          PLAYER_NAME,
+        name: PLAYER_NAME,
         getOAuthToken: cb => cb(tokenRef.current),
-        volume:        0.7,
+        volume: 0.7,
       });
 
       playerRef.current = player;
@@ -48,17 +48,17 @@ export function useSpotifyPlayer(accessToken) {
         setPlayerError(null);
         // Transfer playback to browser (don't auto-start)
         fetch("https://api.spotify.com/v1/me/player", {
-          method:  "PUT",
+          method: "PUT",
           headers: { Authorization: `Bearer ${tokenRef.current}`, "Content-Type": "application/json" },
-          body:    JSON.stringify({ device_ids: [device_id], play: false }),
-        }).catch(() => {});
+          body: JSON.stringify({ device_ids: [device_id], play: false }),
+        }).catch(() => { });
       });
 
-      player.addListener("not_ready",            ()  => { setPlayerReady(false); setDeviceId(null); });
-      player.addListener("initialization_error", ()  => setPlayerError("Player failed to initialize. Try refreshing."));
-      player.addListener("authentication_error", ()  => setPlayerError("Spotify authentication failed. Please log in again."));
-      player.addListener("account_error",        ()  => setPlayerError("Spotify Premium is required to play audio in the browser."));
-      player.addListener("playback_error",       ({ message }) => console.warn("[SDK] Playback error:", message));
+      player.addListener("not_ready", () => { setPlayerReady(false); setDeviceId(null); });
+      player.addListener("initialization_error", () => setPlayerError("Player failed to initialize. Try refreshing."));
+      player.addListener("authentication_error", () => setPlayerError("Spotify authentication failed. Please log in again."));
+      player.addListener("account_error", () => setPlayerError("Spotify Premium is required to play audio in the browser."));
+      player.addListener("playback_error", ({ message }) => console.warn("[SDK] Playback error:", message));
 
       player.connect();
     };
@@ -67,10 +67,10 @@ export function useSpotifyPlayer(accessToken) {
       init();
     } else if (!document.getElementById("spotify-sdk")) {
       window.onSpotifyWebPlaybackSDKReady = init;
-      const s  = document.createElement("script");
-      s.id     = "spotify-sdk";
-      s.src    = SDK_URL;
-      s.async  = true;
+      const s = document.createElement("script");
+      s.id = "spotify-sdk";
+      s.src = SDK_URL;
+      s.async = true;
       document.head.appendChild(s);
     } else {
       window.onSpotifyWebPlaybackSDKReady = init;
@@ -86,7 +86,7 @@ export function useSpotifyPlayer(accessToken) {
 
   const setVolume = useCallback(v => {
     setVolumeState(v);
-    playerRef.current?.setVolume(v).catch(() => {});
+    playerRef.current?.setVolume(v).catch(() => { });
   }, []);
 
   return { deviceId, playerReady, playerError, volume, setVolume };
@@ -96,24 +96,24 @@ export function useSpotifyPlayer(accessToken) {
 
 export async function spotifyPlay(accessToken, deviceId, options = {}) {
   const body = {};
-  if (options.uris)        body.uris        = options.uris;
+  if (options.uris) body.uris = options.uris;
   if (options.context_uri) body.context_uri = options.context_uri;
-  if (options.offset)      body.offset      = options.offset;
+  if (options.offset) body.offset = options.offset;
   if (options.position_ms !== undefined) body.position_ms = options.position_ms;
 
   return fetch(
     `https://api.spotify.com/v1/me/player/play${deviceId ? `?device_id=${deviceId}` : ""}`,
     {
-      method:  "PUT",
+      method: "PUT",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-      body:    JSON.stringify(body),
+      body: JSON.stringify(body),
     }
   );
 }
 
 export async function spotifyPause(accessToken) {
   return fetch("https://api.spotify.com/v1/me/player/pause", {
-    method:  "PUT",
+    method: "PUT",
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }
@@ -143,16 +143,24 @@ export async function spotifyGetQueue(accessToken) {
   return res.json();
 }
 
+export async function spotifySeek(accessToken, positionMs) {
+  if (positionMs < 0) positionMs = 0;
+  return fetch(
+    `https://api.spotify.com/v1/me/player/seek?position_ms=${Math.round(positionMs)}`,
+    { method: "PUT", headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+}
+
 export async function spotifySkipNext(accessToken) {
   return fetch("https://api.spotify.com/v1/me/player/next", {
-    method:  "POST",
+    method: "POST",
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }
 
 export async function spotifySkipPrev(accessToken) {
   return fetch("https://api.spotify.com/v1/me/player/previous", {
-    method:  "POST",
+    method: "POST",
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 }

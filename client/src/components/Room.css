@@ -1098,6 +1098,19 @@ body {
   opacity: 1;
 }
 
+/* Invisible range input overlaid on bar — makes it draggable */
+.prog-scrub {
+  position: absolute;
+  inset: -10px 0;
+  width: 100%;
+  height: calc(100% + 20px);
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 3;
+}
+
 .prog-times {
   display: flex;
   justify-content: space-between;

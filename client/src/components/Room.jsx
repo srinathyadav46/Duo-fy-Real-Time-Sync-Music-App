@@ -1,10 +1,15 @@
+/**
+ * Room.jsx – "Lovers Mode"
+ * Desktop: 3-col (Queue | Player | Search)
+ * Mobile:  tab-switched full-screen panels
+ */
 import { useState, useEffect, useCallback, useRef } from "react";
 import socketService from "../socket";
 import { useSpotify, fmtMs } from "../hooks/useSpotify";
 import {
   useSpotifyPlayer, spotifyPlay, spotifyPause,
   spotifySkipNext, spotifySkipPrev, spotifyGetQueue,
-  spotifySearch, spotifyAddToQueue,
+  spotifySearch, spotifyAddToQueue, spotifySeek,
 } from "../hooks/useSpotifyPlayer";
 import "./Room.css";
 
@@ -247,19 +252,48 @@ export default function Room({ roomId, onLeaveRoom, spotifyToken }) {
       }),
       socketService.on("sync-play", async data => {
         if (data?.roomId && data.roomId !== roomId) return;
-        const lag = data?.timestamp ? Date.now() - data.timestamp : null;
-        if (lag !== null) setLatency(lag);
+
+        // Drift compensation: calculate how long event was in transit
+        // and add that to the sender's position so both users land
+        // on the same millisecond of the track.
+        const receivedAt = Date.now();
+        const lag = data?.timestamp ? receivedAt - data.timestamp : 0;
+        if (lag > 0) setLatency(lag);
+
+        // Seek to drift-compensated position before playing
+        const targetMs = Math.max(0, (data?.progressMs ?? 0) + lag);
+
         setSyncPlaying(true); setPartnerPlaying(true); setSyncCount(n => n + 1);
-        if (deviceId) await spotifyPlay(spotifyToken, deviceId).catch(() => { });
-        if (lastPlayRef.current && Date.now() - lastPlayRef.current < 2500) { celebrate(); showToast("You're in sync 💕", "sync"); }
-        else showToast(`${partnerName ?? "Partner"} played`, "play");
+
+        if (deviceId) {
+          await spotifySeek(spotifyToken, targetMs).catch(() => { });
+          // Brief settle so Spotify processes seek before play command
+          await new Promise(r => setTimeout(r, 80));
+          await spotifyPlay(spotifyToken, deviceId).catch(() => { });
+        }
+
+        if (lastPlayRef.current && receivedAt - lastPlayRef.current < 2500) {
+          celebrate(); showToast("You’re in sync 💕", "sync");
+        } else {
+          showToast(`${partnerName ?? "Partner"} played`, "play");
+        }
       }),
+
       socketService.on("sync-pause", async data => {
         if (data?.roomId && data.roomId !== roomId) return;
         setSyncPlaying(false); setPartnerPlaying(false);
         if (deviceId) await spotifyPause(spotifyToken).catch(() => { });
         showToast(`${partnerName ?? "Partner"} paused`, "pause");
       }),
+
+      // Seek sync — partner dragged the progress bar
+      socketService.on("sync-seek", async data => {
+        if (data?.roomId && data.roomId !== roomId) return;
+        const seekLag = data?.timestamp ? Date.now() - data.timestamp : 0;
+        const targetMs = Math.max(0, (data?.positionMs ?? 0) + seekLag);
+        if (deviceId) await spotifySeek(spotifyToken, targetMs).catch(() => { });
+      }),
+
       socketService.on("sync-track", async data => {
         if (data?.roomId && data.roomId !== roomId) return;
         if (data?.uri && deviceId) await spotifyPlay(spotifyToken, deviceId, { uris: [data.uri] }).catch(() => { });
@@ -271,19 +305,30 @@ export default function Room({ roomId, onLeaveRoom, spotifyToken }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, partnerName, deviceId, spotifyToken]);
 
-  /* Playback */
+  /* Playback — always include timestamp so partner can compensate for lag */
   const handlePlay = useCallback(async () => {
     if (connStatus !== "connected" || syncPlaying) return;
     lastPlayRef.current = Date.now();
     if (deviceId) await spotifyPlay(spotifyToken, deviceId).catch(() => { });
-    socketService.emitPlay(roomId, { progressMs }); setSyncPlaying(true);
+    socketService.emitPlay(roomId, { progressMs, timestamp: Date.now() });
+    setSyncPlaying(true);
   }, [connStatus, syncPlaying, deviceId, spotifyToken, roomId, progressMs]);
 
   const handlePause = useCallback(async () => {
     if (connStatus !== "connected" || !syncPlaying) return;
     if (deviceId) await spotifyPause(spotifyToken).catch(() => { });
-    socketService.emitPause(roomId, { progressMs }); setSyncPlaying(false);
+    socketService.emitPause(roomId, { progressMs, timestamp: Date.now() });
+    setSyncPlaying(false);
   }, [connStatus, syncPlaying, deviceId, spotifyToken, roomId, progressMs]);
+
+  // Progress bar seek — emits position to partner so they follow along
+  const handleSeek = useCallback(async e => {
+    if (!durationMs) return;
+    const pct = parseFloat(e.target.value);   // 0–100
+    const positionMs = Math.round((pct / 100) * durationMs);
+    if (deviceId) await spotifySeek(spotifyToken, positionMs).catch(() => { });
+    socketService.socket?.emit?.("sync-seek", { roomId, positionMs, timestamp: Date.now() });
+  }, [deviceId, spotifyToken, roomId, durationMs]);
 
   const handleTrackPlay = useCallback(t => {
     socketService.socket?.emit?.("sync-track", { roomId, uri: t.uri, trackName: t.name, timestamp: Date.now() });
@@ -375,10 +420,20 @@ export default function Room({ roomId, onLeaveRoom, spotifyToken }) {
               {partnerAvatar ? <img src={partnerAvatar} alt="" /> : <span>{partInit}</span>}
             </div>
           )}
+          {/* Draggable — seek syncs to partner on release */}
           <div className="prog-bar">
             <div className="prog-fill" style={{ width: `${progressPct}%` }}>
               <div className="prog-thumb" />
             </div>
+            <input
+              type="range" className="prog-scrub"
+              min="0" max="100" step="0.1"
+              value={progressPct}
+              onChange={() => { }}
+              onMouseUp={handleSeek}
+              onTouchEnd={handleSeek}
+              aria-label="Seek"
+            />
           </div>
         </div>
         <div className="prog-times">
